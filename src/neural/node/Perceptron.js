@@ -2,8 +2,8 @@ const Node = require("./Node");
 const activationFunctions = require("../activation");
 
 class Perceptron extends Node {
-  constructor(id, blueprint) {
-    super(id);
+  constructor(blueprint) {
+    super(blueprint);
 
     this._activation = blueprint.activation || null;
     this._activationFunction = activationFunctions[this._activation] || null;
@@ -62,7 +62,7 @@ class Perceptron extends Node {
 
   getValue() {
     if (!this._activated) {
-      throw new Error(`Node ${this.id} not activated!`);
+      this._activate();
     }
 
     return this._value;
@@ -70,6 +70,7 @@ class Perceptron extends Node {
 
   toObject() {
     const object = {
+      id: this.id,
       type: "perceptron"
     };
 
@@ -83,6 +84,16 @@ class Perceptron extends Node {
     }
 
     return object;
+  }
+
+  getOutputs() {
+    const outputs = new Set(this._outputs);
+
+    this._outputs.forEach(output =>
+      output.getOutputs().forEach(output => outputs.add(output))
+    );
+
+    return outputs;
   }
 }
 

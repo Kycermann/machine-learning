@@ -1,5 +1,5 @@
 class Node {
-  constructor(id) {
+  constructor({ id }) {
     this.id = id;
 
     // Every node accepts inputs
