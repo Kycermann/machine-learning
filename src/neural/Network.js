@@ -55,22 +55,48 @@ class Network {
     if (!this._prune && !force) return;
     this._prune = false;
 
-    const reachedNodes = new Set();
+    // Get all nodes that inputs reach
+    const inputReachedNodes = new Set();
 
     this._inputs.forEach(inputNode => {
-      reachedNodes.add(inputNode);
-      inputNode.getOutputs().forEach(output => reachedNodes.add(output));
+      inputReachedNodes.add(inputNode);
+      inputNode.getOutputs().forEach(output => inputReachedNodes.add(output));
     });
 
     this._outputs.forEach(outputNode => {
-      reachedNodes.add(outputNode);
+      inputReachedNodes.add(outputNode);
+    });
+
+    // Figure out which of them reach outputs
+    const inputReachedNodesReachOutputs = new Set();
+
+    inputReachedNodes.forEach(node => {
+      const checkNodeReachesOutput = node => {
+        if (inputReachedNodesReachOutputs.has(node)) return true;
+
+        if (this._outputs.includes(node)) {
+          inputReachedNodesReachOutputs.add(node);
+          return true;
+        }
+
+        for (const output of node.getOutputs()) {
+          if (checkNodeReachesOutput(output)) {
+            inputReachedNodesReachOutputs.add(node);
+            return true;
+          }
+        }
+
+        return false;
+      };
+
+      checkNodeReachesOutput(node);
     });
 
     const nodesToDelete = new Set();
 
     // Delete non-input non-output nodes that are unreachable from inputs
     this._nodes.forEach((node, nodeId) => {
-      if (!reachedNodes.has(node)) nodesToDelete.add(node);
+      if (!inputReachedNodesReachOutputs.has(node)) nodesToDelete.add(node);
     });
 
     nodesToDelete.forEach(node => {
@@ -103,12 +129,12 @@ class Network {
     const nodeObjects = [];
 
     this._nodes.forEach(node => {
-      nodeObjects[node.id] = node.toObject();
+      nodeObjects.push(node.toObject());
     });
 
     return {
-      inputs: this._inputs.map(node => node.id),
-      outputs: this._outputs.map(node => node.id),
+      inputs: [...this._inputs].map(node => node.id),
+      outputs: [...this._outputs].map(node => node.id),
       nodes: nodeObjects,
       nextNodeId: this._nextNodeId
     };

@@ -9,7 +9,7 @@ describe("Network", () => {
       /* 0 */ {
         id: 0,
         type: "perceptron",
-        outputs: [3, 5, 6],
+        outputs: [4, 5, 6],
         outputWeights: [1, 1, 1]
       },
       /* 1 */ {
@@ -27,11 +27,11 @@ describe("Network", () => {
         outputs: [10],
         outputWeights: [2]
       },
-      /* 3 */ { id: 3, type: "perceptron", activation: "relu" },
+      /* 3 */ { id: 3, type: "perceptron", activation: "error" },
       /* 4 */ {
         id: 4,
         type: "perceptron",
-        activation: "error",
+        activation: "relu",
         outputs: [8],
         outputWeights: [1]
       },
@@ -63,7 +63,7 @@ describe("Network", () => {
       /* 8 */ {
         id: 8,
         type: "perceptron",
-        activation: "error",
+        activation: "relu",
         outputs: [10],
         outputWeights: [1]
       },
@@ -72,7 +72,7 @@ describe("Network", () => {
       /* 9 */ { id: 9, type: "perceptron", activation: "relu" },
 
       // Useless node for pruning tests (1)
-      /* 10 */ { id: 10, type: "perceptron", activation: "error" }
+      /* 10 */ { id: 10, type: "perceptron", activation: "relu" }
     ],
     nextNodeId: 11
   };
@@ -92,6 +92,10 @@ describe("Network", () => {
     expect(xorNetwork.run(XOR_11)).toEqual(RESULT_0);
   }
 
+  it("Is the correct blueprint", () => {
+    expect(blueprint.nodes.length).toBe(11);
+  });
+
   it("Performs the XOR function", () => {
     testXOR(new Network(blueprint));
   });
@@ -109,29 +113,13 @@ describe("Network", () => {
 
     const network = new Network(blueprintA);
 
-    network.run(XOR_10);
+    testXOR(network);
 
     expect(blueprintA).toEqual(blueprintB);
   });
 
-  it("Deletes nodes are not linked to input when pruned", () => {
-    const NODES_LINKED_TO_INPUT = blueprint.nodes.length - 4;
-    const NODES_LINKED_TO_INPUT_AND_OUTPUT = blueprint.nodes.length - 5;
-
-    const xorNetwork = new Network(blueprint);
-
-    xorNetwork.prune(true);
-
-    testXOR(xorNetwork);
-
-    // Passes even if 1 node that is linked to input is not pruned
-    expect([NODES_LINKED_TO_INPUT, NODES_LINKED_TO_INPUT_AND_OUTPUT]).toContain(
-      xorNetwork.toObject().nodes.length
-    );
-  });
-
   it("Deletes nodes that are not linked to input or output when pruned", () => {
-    const NODES_LINKED_TO_INPUT_AND_OUTPUT = blueprint.nodes.length - 5;
+    const nodesLinkedToInputAndOutput = blueprint.nodes.length - 5;
     const xorNetwork = new Network(blueprint);
 
     xorNetwork.prune(true);
@@ -139,7 +127,7 @@ describe("Network", () => {
     testXOR(xorNetwork);
 
     expect(xorNetwork.toObject().nodes.length).toEqual(
-      NODES_LINKED_TO_INPUT_AND_OUTPUT
+      nodesLinkedToInputAndOutput
     );
   });
 });

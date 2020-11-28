@@ -89,9 +89,10 @@ class Perceptron extends Node {
   getOutputs() {
     const outputs = new Set(this._outputs);
 
-    this._outputs.forEach(output =>
-      output.getOutputs().forEach(output => outputs.add(output))
-    );
+    this._outputs.forEach((output, index) => {
+      // if (this._outputWeights[index] === 0) return;
+      output.getOutputs().forEach(output => outputs.add(output));
+    });
 
     return outputs;
   }
