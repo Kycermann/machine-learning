@@ -101,6 +101,7 @@ class Network {
 
     nodesToDelete.forEach(node => {
       this._nodes.delete(node.id);
+      node.destroy();
     });
 
     // NOTE: This isn't needed if reachable nodes are not deleted

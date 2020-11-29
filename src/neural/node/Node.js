@@ -1,9 +1,10 @@
 class Node {
   constructor({ id }) {
     this.id = id;
+    this.dead = false;
 
     // Every node accepts inputs
-    this._inputCount = 0;
+    this._inputNodes = new Set();
   }
 
   /**
@@ -14,11 +15,19 @@ class Node {
   }
 
   linkInput(inputNode) {
-    this._inputCount++;
+    this._inputNodes.add(inputNode);
   }
 
   getInputCount() {
-    return this._inputCount;
+    this._inputNodes.forEach(node => {
+      if (node.dead) this._inputNodes.delete(node);
+    });
+
+    return this._inputNodes.size;
+  }
+
+  destroy() {
+    this.dead = true;
   }
 
   resetData() {

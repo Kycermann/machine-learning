@@ -24,8 +24,8 @@ describe("Network", () => {
         id: 2,
         type: "perceptron",
         activation: "error",
-        outputs: [10],
-        outputWeights: [2]
+        outputs: [5, 10],
+        outputWeights: [2, 2]
       },
       /* 3 */ { id: 3, type: "perceptron", activation: "error" },
       /* 4 */ {
@@ -118,7 +118,7 @@ describe("Network", () => {
     expect(blueprintA).toEqual(blueprintB);
   });
 
-  it("Deletes nodes that are not linked to input or output when pruned", () => {
+  it("Deletes nodes that are not linked to input and output when pruned", () => {
     const nodesLinkedToInputAndOutput = blueprint.nodes.length - 5;
     const xorNetwork = new Network(blueprint);
 
